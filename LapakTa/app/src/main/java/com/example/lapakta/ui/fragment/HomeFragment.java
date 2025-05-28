@@ -1,66 +1,62 @@
 package com.example.lapakta.ui.fragment;
-
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lapakta.R;
+import com.yourapp.lapakta.adapter.ProductAdapter;
+import com.example.lapakta.data.model.Product;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link HomeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.util.ArrayList;
+import java.util.List;
+
 public class HomeFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private RecyclerView rvProducts;
+    private Button btnRefresh;
+    private ProductAdapter adapter;
+    private List<Product> productList;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public HomeFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment HomeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static HomeFragment newInstance(String param1, String param2) {
-        HomeFragment fragment = new HomeFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
+    @Nullable
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
+
+        rvProducts = view.findViewById(R.id.rvProducts);
+        btnRefresh = view.findViewById(R.id.btnRefresh);
+
+        // Setup RecyclerView
+        rvProducts.setLayoutManager(new LinearLayoutManager(getContext()));
+        productList = new ArrayList<>();
+        adapter = new ProductAdapter(productList, product -> {
+            // TODO: Intent ke DetailProdukActivity
+        });
+        rvProducts.setAdapter(adapter);
+
+        loadDummyData();
+
+        btnRefresh.setOnClickListener(v -> {
+            loadDummyData();
+        });
+
+        return view;
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+    private void loadDummyData() {
+        productList.clear();
+        productList.add(new Product(1, "Sepatu Sneakers", "Sepatu nyaman dan stylish", 350000, "https://dummyimage.com/100x100/000/fff&text=Sneakers"));
+        productList.add(new Product(2, "Tas Ransel", "Tas ransel untuk aktivitas harian", 450000, "https://dummyimage.com/100x100/000/fff&text=Backpack"));
+        productList.add(new Product(3, "Jam Tangan", "Jam tangan modern", 750000, "https://dummyimage.com/100x100/000/fff&text=Watch"));
+        adapter.notifyDataSetChanged();
     }
 }
