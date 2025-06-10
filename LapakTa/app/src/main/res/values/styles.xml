@@ -13,5 +13,21 @@
         <item name="android:textAppearance">@style/TextAppearance.Material3.BodyLarge</item>
         <item name="android:drawableEnd">@drawable/ic_chevron_right</item>
     </style>
+
+    <style name="DetailSectionTitle" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">24dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.Material3.TitleMedium</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="DetailInfoText" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">4dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.Material3.BodyMedium</item>
+    </style>
 </resources>
     

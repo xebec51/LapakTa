@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/colorSurfaceContainerLowest"
     tools:context=".ui.activity.ProductDetailActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -17,7 +18,8 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            app:titleTextColor="@color/white" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -31,50 +33,143 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/ivProductImage"
+            <!-- Galeri Gambar -->
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/imageSlider"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:scaleType="centerCrop"
-                tools:src="@tools:sample/backgrounds/scenic"/>
+                android:layout_height="300dp" />
 
-            <TextView
-                android:id="@+id/tvProductTitle"
+            <!-- Info Utama -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-                tools:text="Product Title" />
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:background="?attr/colorSurface">
 
-            <TextView
-                android:id="@+id/tvProductPrice"
+                <TextView
+                    android:id="@+id/tvProductTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
+                    tools:text="Judul Produk yang Cukup Panjang"/>
+
+                <TextView
+                    android:id="@+id/tvBrand"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                    tools:text="Nama Brand"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="bottom">
+
+                    <TextView
+                        android:id="@+id/tvDiscountedPrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/lapakta_orange"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        tools:text="Rp 89.999"/>
+
+                    <TextView
+                        android:id="@+id/tvOriginalPrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:textSize="16sp"
+                        tools:text="Rp 100.000"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical">
+                    <RatingBar
+                        android:id="@+id/ratingBar"
+                        style="?android:attr/ratingBarStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:isIndicator="true"
+                        android:numStars="5" />
+                    <TextView
+                        android:id="@+id/tvRating"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        tools:text="4.5"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <!-- Deskripsi, Info Pengiriman, Ulasan, etc. -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                android:textColor="@color/lapakta_orange"
-                android:textStyle="bold"
-                tools:text="Rp 150.000" />
+                android:orientation="vertical"
+                android:padding="16dp">
 
-            <TextView
-                android:id="@+id/tvProductDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                tools:text="This is a long description of the product to see how the layout looks. It should wrap nicely and provide all the necessary details for the user."/>
+                <TextView
+                    android:id="@+id/tvAvailability"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                    tools:text="Stok: Tersedia (99)"/>
 
-            <Button
-                android:id="@+id/btnAddToCart"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:text="Add to Cart"
-                android:backgroundTint="@color/lapakta_orange"
-                android:textColor="@color/white"/>
+                <TextView style="@style/DetailSectionTitle" android:text="Deskripsi Produk"/>
+                <TextView
+                    android:id="@+id/tvProductDescription"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    tools:text="Ini adalah deskripsi produk yang sangat detail..."/>
+
+                <TextView style="@style/DetailSectionTitle" android:text="Info Pengiriman &amp; Garansi"/>
+                <TextView android:id="@+id/tvShippingInfo" tools:text="Info Pengiriman" style="@style/DetailInfoText"/>
+                <TextView android:id="@+id/tvWarrantyInfo" tools:text="Info Garansi" style="@style/DetailInfoText"/>
+                <TextView android:id="@+id/tvReturnPolicy" tools:text="Kebijakan Pengembalian" style="@style/DetailInfoText"/>
+
+                <TextView style="@style/DetailSectionTitle" android:text="Tags"/>
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupTags"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <TextView style="@style/DetailSectionTitle" android:text="Ulasan Pengguna"/>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvReviews"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    tools:layoutManager="LinearLayoutManager"
+                    tools:itemCount="3"
+                    tools:listitem="@layout/item_review"/>
+
+            </LinearLayout>
+
+            <View android:layout_width="match_parent" android:layout_height="80dp"/>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <Button
+        android:id="@+id/btnAddToCart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_margin="16dp"
+        android:padding="12dp"
+        android:text="Tambah ke Keranjang"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -41,7 +42,16 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
         Product product = productList.get(position);
         holder.tvTitle.setText(product.getTitle());
-        holder.tvPrice.setText("Rp " + product.getPrice());
+        holder.tvBrand.setText(product.getBrand());
+
+        if (product.getCategory() != null) {
+            holder.tvCategory.setText(product.getCategory().toUpperCase());
+        } else {
+            holder.tvCategory.setText("UNCATEGORIZED"); // Teks default jika null
+        }
+
+        holder.tvPrice.setText("Rp " + String.format("%,.2f", product.getPrice()));
+        holder.ratingBar.setRating((float) product.getRating());
         Picasso.get().load(product.getThumbnail()).into(holder.ivThumbnail);
 
         holder.itemView.setOnClickListener(v -> {
@@ -58,13 +68,17 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     static class ProductViewHolder extends RecyclerView.ViewHolder {
         ImageView ivThumbnail;
-        TextView tvTitle, tvPrice;
+        TextView tvTitle, tvPrice, tvCategory, tvBrand;
+        RatingBar ratingBar;
 
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
             ivThumbnail = itemView.findViewById(R.id.ivThumbnail);
             tvTitle = itemView.findViewById(R.id.tvTitle);
             tvPrice = itemView.findViewById(R.id.tvPrice);
+            tvCategory = itemView.findViewById(R.id.tvCategory);
+            tvBrand = itemView.findViewById(R.id.tvBrand);
+            ratingBar = itemView.findViewById(R.id.ratingBar);
         }
     }
 }

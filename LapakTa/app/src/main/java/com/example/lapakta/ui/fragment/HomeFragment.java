@@ -5,13 +5,19 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -39,6 +45,14 @@ public class HomeFragment extends Fragment {
     private ProductAdapter productAdapter;
     private List<Product> productList = new ArrayList<>();
     private Button btnRefresh;
+    private ProgressBar progressBar;
+    private TextView tvNoData; // TextView untuk pesan "data tidak ditemukan"
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true); // Memberi tahu fragment bahwa ia memiliki menu sendiri
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -52,6 +66,8 @@ public class HomeFragment extends Fragment {
         // Inisialisasi semua view
         rvProducts = view.findViewById(R.id.rvProducts);
         btnRefresh = view.findViewById(R.id.btnRefresh);
+        progressBar = view.findViewById(R.id.progressBar);
+        tvNoData = view.findViewById(R.id.tvNoData);
 
         // Panggil metode untuk setup RecyclerView
         setupRecyclerView();
@@ -64,6 +80,47 @@ public class HomeFragment extends Fragment {
         // Muat data
         loadProductsFromCache();
         fetchProducts();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.home_menu, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // Saat pengguna menekan tombol cari di keyboard
+                if (!query.trim().isEmpty()) {
+                    performSearch(query);
+                }
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                // Bisa dibiarkan kosong jika tidak ingin live search
+                return false;
+            }
+        });
+
+        // Listener saat tombol 'x' di searchview ditekan
+        searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(@NonNull MenuItem item) {
+                return true; // Biarkan search view terbuka
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(@NonNull MenuItem item) {
+                // Saat search view ditutup, muat kembali semua produk
+                fetchProducts();
+                return true;
+            }
+        });
+
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     private void setupRecyclerView() {
@@ -81,7 +138,44 @@ public class HomeFragment extends Fragment {
 
     // Metode lainnya (fetchProducts, loadProductsFromCache, dll.) tidak perlu diubah
 
+    private void showLoading(boolean isLoading) {
+        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        rvProducts.setVisibility(isLoading ? View.GONE : View.VISIBLE);
+        btnRefresh.setVisibility(View.GONE);
+        tvNoData.setVisibility(View.GONE);
+    }
+
+    private void performSearch(String query) {
+        showLoading(true);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        executor.execute(() -> {
+            ApiService apiService = ApiClient.getClient().create(ApiService.class);
+            Call<ProductResponse> call = apiService.searchProducts(query);
+            try {
+                Response<ProductResponse> response = call.execute();
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Product> searchResults = response.body().getProducts();
+                    handler.post(() -> {
+                        showLoading(false);
+                        updateProductList(searchResults);
+                        // Tampilkan pesan jika hasil kosong
+                        if (searchResults.isEmpty()) {
+                            tvNoData.setVisibility(View.VISIBLE);
+                        }
+                    });
+                } else {
+                    handler.post(() -> handleFetchError());
+                }
+            } catch (Exception e) {
+                handler.post(() -> handleFetchError());
+            }
+        });
+    }
+
     private void fetchProducts() {
+        showLoading(true);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
 
@@ -95,16 +189,23 @@ public class HomeFragment extends Fragment {
                     List<Product> fetchedProducts = response.body().getProducts();
                     if (isAdded()) { // Pastikan Fragment masih terpasang
                         handler.post(() -> {
+                            showLoading(false);
                             updateProductList(fetchedProducts);
                             CacheManager.saveProducts(requireContext(), fetchedProducts);
                             btnRefresh.setVisibility(View.GONE);
                         });
                     }
                 } else {
-                    if (isAdded()) handler.post(this::handleFetchError);
+                    if (isAdded()) handler.post(() -> {
+                        showLoading(false);
+                        handleFetchError();
+                    });
                 }
             } catch (Exception e) {
-                if (isAdded()) handler.post(this::handleFetchError);
+                if (isAdded()) handler.post(() -> {
+                    showLoading(false);
+                    handleFetchError();
+                });
             }
         });
     }
