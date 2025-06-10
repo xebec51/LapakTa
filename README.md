@@ -51,7 +51,7 @@ Proyek ini dibangun untuk memenuhi semua spesifikasi teknis yang diwajibkan [cit
 
 1.  **Clone Repositori**:
     ```bash
-    git clone [URL_REPOSITORY_ANDA]
+    git clone https://github.com/xebec51/LapakTa.git
     ```
 2.  **Buka di Android Studio**: Buka folder proyek melalui Android Studio.
 3.  **Jalankan Aplikasi**: Lakukan `Build` dan `Run` pada emulator atau perangkat Android fisik.
