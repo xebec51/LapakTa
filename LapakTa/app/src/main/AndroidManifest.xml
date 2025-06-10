@@ -15,17 +15,36 @@
         android:theme="@style/Theme.LapakTa"
         tools:targetApi="31">
         <activity
-            android:name=".ui.activity.ProductDetailActivity"
+            android:name=".ui.activity.ChangePasswordActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activity.MainActivity"
-            android:exported="true">
+            android:name=".ui.activity.EditProfileActivity"
+            android:exported="false" /> <!-- 1. Jadikan SplashActivity sebagai LAUNCHER -->
+        <activity
+            android:name=".ui.activity.SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity> <!-- 2. Hapus intent-filter LAUNCHER dari MainActivity -->
+        <activity
+            android:name=".ui.activity.MainActivity"
+            android:exported="false" /> <!-- 3. Pastikan Activity lain sudah terdaftar dengan benar -->
+        <activity
+            android:name=".ui.activity.LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activity.RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activity.ProductDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activity.CheckoutActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

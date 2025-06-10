@@ -10,8 +10,10 @@
         android:icon="@drawable/ic_cart"
         android:title="Cart" />
 
+    <!-- Ganti item ini -->
     <item
-        android:id="@+id/settingsFragment"
-        android:icon="@drawable/ic_settings"
-        android:title="Settings" />
+        android:id="@+id/accountFragment"
+        android:icon="@drawable/ic_account"
+        android:title="Akun" />
 </menu>
+    

@@ -65,6 +65,15 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 tools:text="This is a long description of the product to see how the layout looks. It should wrap nicely and provide all the necessary details for the user."/>
 
+            <Button
+                android:id="@+id/btnAddToCart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:text="Add to Cart"
+                android:backgroundTint="@color/lapakta_orange"
+                android:textColor="@color/white"/>
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

@@ -17,8 +17,8 @@
         tools:layout="@layout/fragment_cart" />
 
     <fragment
-        android:id="@+id/settingsFragment"
-        android:name="com.example.lapakta.ui.fragment.SettingsFragment"
-        android:label="Settings"
-        tools:layout="@layout/fragment_settings" />
+        android:id="@+id/accountFragment"
+        android:name="com.example.lapakta.ui.fragment.AccountFragment"
+        android:label="Akun Saya"
+        tools:layout="@layout/fragment_account" />
 </navigation>
