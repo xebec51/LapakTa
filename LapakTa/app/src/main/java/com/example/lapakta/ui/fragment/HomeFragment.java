@@ -1,5 +1,6 @@
 package com.example.lapakta.ui.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,10 +18,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lapakta.R;
 import com.example.lapakta.adapter.ProductAdapter;
+import com.example.lapakta.data.local.CacheManager;
 import com.example.lapakta.data.model.Product;
 import com.example.lapakta.data.model.ProductResponse;
 import com.example.lapakta.data.network.ApiClient;
 import com.example.lapakta.data.network.ApiService;
+import com.example.lapakta.ui.activity.ProductDetailActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,31 +49,43 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Inisialisasi semua view
         rvProducts = view.findViewById(R.id.rvProducts);
         btnRefresh = view.findViewById(R.id.btnRefresh);
-        rvProducts.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Setup Adapter
-        productAdapter = new ProductAdapter(productList, product -> {
-            // Aksi saat item produk di-klik (bisa diimplementasikan nanti)
-            Toast.makeText(getContext(), "Clicked: " + product.getTitle(), Toast.LENGTH_SHORT).show();
-        });
-        rvProducts.setAdapter(productAdapter);
+        // Panggil metode untuk setup RecyclerView
+        setupRecyclerView();
 
         btnRefresh.setOnClickListener(v -> {
             btnRefresh.setVisibility(View.GONE);
             fetchProducts();
         });
 
+        // Muat data
+        loadProductsFromCache();
         fetchProducts();
     }
+
+    private void setupRecyclerView() {
+        // Buat dan pasang adapter SEGERA
+        productAdapter = new ProductAdapter(productList, product -> {
+            Intent intent = new Intent(requireActivity(), ProductDetailActivity.class);
+            intent.putExtra(ProductDetailActivity.EXTRA_PRODUCT, product);
+            startActivity(intent);
+        });
+
+        // Gunakan requireContext() untuk memastikan context tidak null
+        rvProducts.setLayoutManager(new LinearLayoutManager(requireContext()));
+        rvProducts.setAdapter(productAdapter);
+    }
+
+    // Metode lainnya (fetchProducts, loadProductsFromCache, dll.) tidak perlu diubah
 
     private void fetchProducts() {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
 
         executor.execute(() -> {
-            // Operasi background thread
             ApiService apiService = ApiClient.getClient().create(ApiService.class);
             Call<ProductResponse> call = apiService.getProducts();
 
@@ -78,24 +93,42 @@ public class HomeFragment extends Fragment {
                 Response<ProductResponse> response = call.execute();
                 if (response.isSuccessful() && response.body() != null) {
                     List<Product> fetchedProducts = response.body().getProducts();
-                    handler.post(() -> {
-                        // Update UI di main thread
-                        productList.clear();
-                        productList.addAll(fetchedProducts);
-                        productAdapter.notifyDataSetChanged();
-                        btnRefresh.setVisibility(View.GONE);
-                    });
+                    if (isAdded()) { // Pastikan Fragment masih terpasang
+                        handler.post(() -> {
+                            updateProductList(fetchedProducts);
+                            CacheManager.saveProducts(requireContext(), fetchedProducts);
+                            btnRefresh.setVisibility(View.GONE);
+                        });
+                    }
                 } else {
-                    handler.post(() -> showError());
+                    if (isAdded()) handler.post(this::handleFetchError);
                 }
             } catch (Exception e) {
-                handler.post(() -> showError());
+                if (isAdded()) handler.post(this::handleFetchError);
             }
         });
     }
 
-    private void showError() {
-        Toast.makeText(getContext(), "Gagal memuat data. Periksa koneksi internet Anda.", Toast.LENGTH_LONG).show();
-        btnRefresh.setVisibility(View.VISIBLE);
+    private void loadProductsFromCache() {
+        List<Product> cachedProducts = CacheManager.loadProducts(requireContext());
+        if (cachedProducts != null && !cachedProducts.isEmpty()) {
+            updateProductList(cachedProducts);
+            Toast.makeText(requireContext(), "Menampilkan data offline.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void handleFetchError() {
+        if (productList.isEmpty()) {
+            Toast.makeText(requireContext(), "Gagal memuat data. Periksa koneksi internet Anda.", Toast.LENGTH_LONG).show();
+            btnRefresh.setVisibility(View.VISIBLE);
+        } else {
+            Toast.makeText(requireContext(), "Gagal mengambil data terbaru. Menampilkan data offline.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void updateProductList(List<Product> newProducts) {
+        productList.clear();
+        productList.addAll(newProducts);
+        productAdapter.notifyDataSetChanged();
     }
 }
