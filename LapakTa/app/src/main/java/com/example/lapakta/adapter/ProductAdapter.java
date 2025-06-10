@@ -1,4 +1,4 @@
-package com.yourapp.lapakta.adapter;
+package com.example.lapakta.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
