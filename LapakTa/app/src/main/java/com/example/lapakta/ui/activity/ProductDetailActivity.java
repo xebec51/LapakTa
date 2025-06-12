@@ -26,6 +26,8 @@ import com.example.lapakta.data.model.Product;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.squareup.picasso.Picasso;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 public class ProductDetailActivity extends AppCompatActivity {
 
@@ -74,8 +76,9 @@ public class ProductDetailActivity extends AppCompatActivity {
         double originalPrice = product.getPrice();
         double discount = product.getDiscountPercentage();
         double discountedPrice = originalPrice - (originalPrice * discount / 100);
-        tvDiscountedPrice.setText("Rp " + String.format("%,.2f", discountedPrice));
-        tvOriginalPrice.setText("Rp " + String.format("%,.2f", originalPrice));
+        NumberFormat format = NumberFormat.getCurrencyInstance(Locale.US);
+        tvDiscountedPrice.setText(format.format(discountedPrice));
+        tvOriginalPrice.setText(format.format(originalPrice));
         tvOriginalPrice.setPaintFlags(tvOriginalPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 
         // Info Lainnya
@@ -161,6 +164,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             return true;
         }
         return super.onOptionsItemSelected(item);

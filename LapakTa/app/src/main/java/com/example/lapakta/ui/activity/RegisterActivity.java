@@ -24,7 +24,7 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         EditText etFullName = findViewById(R.id.etFullName);
-        etDateOfBirth = findViewById(R.id.etDateOfBirth); // Inisialisasi EditText Tanggal Lahir
+        etDateOfBirth = findViewById(R.id.etDateOfBirth);
         EditText etEmail = findViewById(R.id.etEmail);
         EditText etPhoneNumber = findViewById(R.id.etPhoneNumber);
         EditText etUsername = findViewById(R.id.etUsername);
@@ -87,5 +87,12 @@ public class RegisterActivity extends AppCompatActivity {
         String myFormat = "dd/MM/yyyy";
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
         etDateOfBirth.setText(sdf.format(myCalendar.getTime()));
+    }
+
+    // Override metode finish() untuk menambahkan transisi
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 }

@@ -6,8 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".ui.fragment.CartFragment">
 
-    <!-- RecyclerView untuk menampilkan daftar item keranjang -->
-    <!-- Tingginya akan mengisi ruang di atas layout bawah -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvCart"
         android:layout_width="match_parent"
@@ -17,8 +15,40 @@
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/item_cart" />
 
-    <!-- Layout untuk total harga dan tombol checkout -->
-    <!-- Ditempelkan di bagian paling bawah layar -->
+    <LinearLayout
+        android:id="@+id/emptyCartView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/ic_cart"
+            app:tint="?android:attr/textColorSecondary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Keranjang Anda Kosong"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Yuk, mulai belanja dan isi keranjangmu!"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="?android:attr/textColorSecondary" />
+
+    </LinearLayout>
+
+
     <LinearLayout
         android:id="@+id/bottomLayout"
         android:layout_width="match_parent"
@@ -43,7 +73,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Checkout"
-            android:backgroundTint="@color/lapakta_orange"
+            android:backgroundTint="@color/lapakta_blue"
             android:textColor="@color/white"/>
 
     </LinearLayout>

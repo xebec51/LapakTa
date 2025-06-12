@@ -16,6 +16,8 @@ import com.example.lapakta.R;
 import com.example.lapakta.data.local.CartManager;
 import com.example.lapakta.data.model.CartItem;
 import java.util.List;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 public class CheckoutActivity extends AppCompatActivity {
 
@@ -67,19 +69,27 @@ public class CheckoutActivity extends AppCompatActivity {
         StringBuilder summaryBuilder = new StringBuilder();
         double totalPrice = 0;
 
+        NumberFormat format = NumberFormat.getCurrencyInstance(Locale.US); // Buat format sekali
+
         for (CartItem item : cartItems) {
             double subtotal = item.getProduct().getPrice() * item.getQuantity();
             summaryBuilder.append(item.getQuantity())
                     .append("x ")
                     .append(item.getProduct().getTitle())
-                    .append(" - Rp ")
-                    .append(String.format("%,.2f", subtotal))
+                    .append(" - ") // Hapus "Rp"
+                    .append(format.format(subtotal)) // Gunakan format Dolar
                     .append("\n");
             totalPrice += subtotal;
         }
 
         summaryView.setText(summaryBuilder.toString());
-        totalView.setText("Total Akhir: Rp " + String.format("%,.2f", totalPrice));
+        totalView.setText("Total Akhir: " + format.format(totalPrice)); // Gunakan format Dolar
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
     private void showOrderConfirmationDialog(String customerName, String paymentMethod) {
@@ -87,13 +97,11 @@ public class CheckoutActivity extends AppCompatActivity {
                 .setTitle("Pesanan Diterima!")
                 .setMessage("Terima kasih, " + customerName + "! Pesanan Anda akan segera diproses. Metode pembayaran: " + paymentMethod)
                 .setPositiveButton("OK", (dialog, which) -> {
-                    // Kosongkan keranjang dan kembali ke halaman utama
                     CartManager.clearCart(this);
                     Toast.makeText(this, "Terima kasih telah berbelanja!", Toast.LENGTH_LONG).show();
-                    // Kembali ke MainActivity
-                    finish(); // Menutup CheckoutActivity
+                    finish();
                 })
-                .setCancelable(false) // User tidak bisa menutup dialog ini tanpa menekan OK
+                .setCancelable(false)
                 .show();
     }
 

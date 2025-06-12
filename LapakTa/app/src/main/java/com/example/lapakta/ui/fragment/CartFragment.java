@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -20,7 +21,9 @@ import com.example.lapakta.data.local.CartManager;
 import com.example.lapakta.data.model.CartItem;
 import com.example.lapakta.ui.activity.CheckoutActivity;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class CartFragment extends Fragment {
 
@@ -29,6 +32,8 @@ public class CartFragment extends Fragment {
     private List<CartItem> cartItems;
     private Button btnCheckout;
     private TextView tvTotalPrice;
+    private LinearLayout bottomLayout; // Variabel untuk layout bawah
+    private View emptyCartView;        // Variabel untuk tampilan keranjang kosong
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -41,6 +46,8 @@ public class CartFragment extends Fragment {
         rvCart = view.findViewById(R.id.rvCart);
         btnCheckout = view.findViewById(R.id.btnCheckout);
         tvTotalPrice = view.findViewById(R.id.tvTotalPrice);
+        bottomLayout = view.findViewById(R.id.bottomLayout); // Inisialisasi layout bawah
+        emptyCartView = view.findViewById(R.id.emptyCartView); // Inisialisasi view kosong
 
         setupRecyclerView();
 
@@ -72,7 +79,6 @@ public class CartFragment extends Fragment {
 
             @Override
             public void onDecrease(CartItem item) {
-                // Jika kuantitas > 1, kurangi. Jika 1, tampilkan dialog konfirmasi hapus.
                 if (item.getQuantity() > 1) {
                     CartManager.decreaseQuantity(requireContext(), item);
                     updateCartUI();
@@ -83,7 +89,6 @@ public class CartFragment extends Fragment {
 
             @Override
             public void onRemove(CartItem item) {
-                // Selalu tampilkan dialog konfirmasi saat tombol hapus utama ditekan
                 showRemoveConfirmationDialog(item);
             }
         });
@@ -91,31 +96,46 @@ public class CartFragment extends Fragment {
         rvCart.setAdapter(cartAdapter);
     }
 
-    // --- METODE BARU UNTUK DIALOG KONFIRMASI ---
     private void showRemoveConfirmationDialog(CartItem item) {
         new AlertDialog.Builder(requireContext())
                 .setTitle("Konfirmasi Hapus")
                 .setMessage("Anda yakin ingin menghapus " + item.getProduct().getTitle() + " dari keranjang?")
                 .setPositiveButton("Ya", (dialog, which) -> {
-                    // Jika user klik "Ya", hapus item sepenuhnya
                     CartManager.removeItem(requireContext(), item);
                     updateCartUI();
                     Toast.makeText(requireContext(), item.getProduct().getTitle() + " dihapus", Toast.LENGTH_SHORT).show();
                 })
-                .setNegativeButton("Tidak", null) // Tombol "Tidak" tidak melakukan apa-apa
+                .setNegativeButton("Tidak", null)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
     }
 
     private void updateCartUI() {
+        // Muat ulang item dari CartManager
         cartItems.clear();
         cartItems.addAll(CartManager.getCartItems(requireContext()));
         cartAdapter.notifyDataSetChanged();
 
+        // Cek apakah keranjang kosong
+        if (cartItems.isEmpty()) {
+            rvCart.setVisibility(View.GONE);
+            bottomLayout.setVisibility(View.GONE);
+            emptyCartView.setVisibility(View.VISIBLE);
+        } else {
+            rvCart.setVisibility(View.VISIBLE);
+            bottomLayout.setVisibility(View.VISIBLE);
+            emptyCartView.setVisibility(View.GONE);
+        }
+
         double totalPrice = 0;
         for (CartItem item : cartItems) {
-            totalPrice += item.getProduct().getPrice() * item.getQuantity();
+            // Kalkulasi harga diskon sebelum menjumlahkan
+            double originalPrice = item.getProduct().getPrice();
+            double discountPercentage = item.getProduct().getDiscountPercentage();
+            double discountedPrice = originalPrice - (originalPrice * discountPercentage / 100);
+            totalPrice += discountedPrice * item.getQuantity();
         }
-        tvTotalPrice.setText("Total: Rp " + String.format("%,.2f", totalPrice));
+        NumberFormat format = NumberFormat.getCurrencyInstance(Locale.US);
+        tvTotalPrice.setText("Total: " + format.format(totalPrice));
     }
 }

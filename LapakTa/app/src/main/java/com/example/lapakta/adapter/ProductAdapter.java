@@ -10,6 +10,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+
 import com.example.lapakta.R;
 import com.example.lapakta.data.model.Product;
 import com.squareup.picasso.Picasso; // Library untuk load gambar
@@ -50,7 +53,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             holder.tvCategory.setText("UNCATEGORIZED"); // Teks default jika null
         }
 
-        holder.tvPrice.setText("Rp " + String.format("%,.2f", product.getPrice()));
+        NumberFormat format = NumberFormat.getCurrencyInstance(Locale.US);
+        holder.tvPrice.setText(format.format(product.getPrice()));
         holder.ratingBar.setRating((float) product.getRating());
         Picasso.get().load(product.getThumbnail()).into(holder.ivThumbnail);
 

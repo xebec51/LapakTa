@@ -12,50 +12,84 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <LinearLayout
+        <!-- ========================================================== -->
+        <!-- BAGIAN PROFIL YANG DIPERBARUI MULAI DARI SINI              -->
+        <!-- ========================================================== -->
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/colorSurface"
-            android:gravity="center"
-            android:orientation="vertical"
             android:paddingTop="24dp"
-            android:paddingBottom="24dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
+            android:paddingBottom="24dp">
 
-            <ImageView
-                android:layout_width="96dp"
-                android:layout_height="96dp"
-                android:src="@drawable/ic_account"
-                app:tint="?attr/colorPrimary" />
-
-            <TextView
-                android:id="@+id/tvFullName"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-                tools:text="Nama Lengkap Pengguna" />
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
 
-            <TextView
-                android:id="@+id/tvUsername"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                android:textColor="?android:attr/textColorSecondary"
-                tools:text="\@username" />
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/tvEmail"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                android:textColor="?android:attr/textColorSecondary"
-                tools:text="email@example.com" />
+                    <!-- Gunakan ShapeableImageView untuk foto profil bulat -->
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivProfile"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_account"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+                        app:strokeColor="?attr/colorPrimary"
+                        app:strokeWidth="2dp" />
 
-        </LinearLayout>
+                    <!-- Tombol kecil untuk edit foto -->
+                    <ImageButton
+                        android:id="@+id/btnEditPhoto"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_gravity="bottom|end"
+                        android:background="@drawable/rounded_container"
+                        android:elevation="4dp"
+                        android:src="@drawable/ic_edit"
+                        app:tint="?attr/colorOnSurface"
+                        android:contentDescription="Ubah Foto Profil"/>
+
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/tvFullName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                    tools:text="Nama Lengkap Pengguna" />
+
+                <TextView
+                    android:id="@+id/tvUsername"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:textColor="?android:attr/textColorSecondary"
+                    tools:text="\@username" />
+
+                <TextView
+                    android:id="@+id/tvEmail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:textColor="?android:attr/textColorSecondary"
+                    tools:text="email@example.com" />
+            </LinearLayout>
+        </FrameLayout>
+        <!-- ========================================================== -->
+        <!-- BAGIAN PROFIL YANG DIPERBARUI SELESAI DI SINI              -->
+        <!-- ========================================================== -->
+
 
         <LinearLayout
             android:layout_width="match_parent"

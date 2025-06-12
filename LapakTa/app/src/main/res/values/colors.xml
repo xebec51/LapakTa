@@ -2,11 +2,10 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="teal_700">#FF00796B</color>
 
-    <color name="lapakta_orange">#D9743D</color>
+    <color name="lapakta_blue">#0D6EBA</color>
+    <color name="lapakta_blue_dark">#004489</color>
     <color name="lapakta_cream">#F5F0E4</color>
 
-<!--    *Kita tetap menggunakan nama `purple_500` karena tema sudah mereferensikannya, tapi kita ganti kode warnanya dengan warna oranye dari logo.*-->
-    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_500">@color/lapakta_blue</color>
 </resources>

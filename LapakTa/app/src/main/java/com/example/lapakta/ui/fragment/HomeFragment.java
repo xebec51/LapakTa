@@ -11,7 +11,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +29,7 @@ import com.example.lapakta.data.model.ProductResponse;
 import com.example.lapakta.data.network.ApiClient;
 import com.example.lapakta.data.network.ApiService;
 import com.example.lapakta.ui.activity.ProductDetailActivity;
+import com.facebook.shimmer.ShimmerFrameLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,17 +41,17 @@ import retrofit2.Response;
 
 public class HomeFragment extends Fragment {
 
+    private ShimmerFrameLayout shimmerContainer;
     private RecyclerView rvProducts;
     private ProductAdapter productAdapter;
     private List<Product> productList = new ArrayList<>();
     private Button btnRefresh;
-    private ProgressBar progressBar;
-    private TextView tvNoData; // TextView untuk pesan "data tidak ditemukan"
+    private TextView tvNoData;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true); // Memberi tahu fragment bahwa ia memiliki menu sendiri
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -63,13 +63,11 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Inisialisasi semua view
+        shimmerContainer = view.findViewById(R.id.shimmer_view_container);
         rvProducts = view.findViewById(R.id.rvProducts);
         btnRefresh = view.findViewById(R.id.btnRefresh);
-        progressBar = view.findViewById(R.id.progressBar);
         tvNoData = view.findViewById(R.id.tvNoData);
 
-        // Panggil metode untuk setup RecyclerView
         setupRecyclerView();
 
         btnRefresh.setOnClickListener(v -> {
@@ -77,7 +75,6 @@ public class HomeFragment extends Fragment {
             fetchProducts();
         });
 
-        // Muat data
         loadProductsFromCache();
         fetchProducts();
     }
@@ -91,7 +88,6 @@ public class HomeFragment extends Fragment {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                // Saat pengguna menekan tombol cari di keyboard
                 if (!query.trim().isEmpty()) {
                     performSearch(query);
                 }
@@ -100,21 +96,18 @@ public class HomeFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                // Bisa dibiarkan kosong jika tidak ingin live search
                 return false;
             }
         });
 
-        // Listener saat tombol 'x' di searchview ditekan
         searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(@NonNull MenuItem item) {
-                return true; // Biarkan search view terbuka
+                return true;
             }
 
             @Override
             public boolean onMenuItemActionCollapse(@NonNull MenuItem item) {
-                // Saat search view ditutup, muat kembali semua produk
                 fetchProducts();
                 return true;
             }
@@ -124,29 +117,31 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupRecyclerView() {
-        // Buat dan pasang adapter SEGERA
         productAdapter = new ProductAdapter(productList, product -> {
             Intent intent = new Intent(requireActivity(), ProductDetailActivity.class);
             intent.putExtra(ProductDetailActivity.EXTRA_PRODUCT, product);
             startActivity(intent);
         });
-
-        // Gunakan requireContext() untuk memastikan context tidak null
         rvProducts.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvProducts.setAdapter(productAdapter);
     }
 
-    // Metode lainnya (fetchProducts, loadProductsFromCache, dll.) tidak perlu diubah
-
-    private void showLoading(boolean isLoading) {
-        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-        rvProducts.setVisibility(isLoading ? View.GONE : View.VISIBLE);
+    private void startLoading() {
+        shimmerContainer.setVisibility(View.VISIBLE);
+        shimmerContainer.startShimmer();
+        rvProducts.setVisibility(View.GONE);
         btnRefresh.setVisibility(View.GONE);
         tvNoData.setVisibility(View.GONE);
     }
 
+    private void stopLoading() {
+        shimmerContainer.stopShimmer();
+        shimmerContainer.setVisibility(View.GONE);
+        rvProducts.setVisibility(View.VISIBLE);
+    }
+
     private void performSearch(String query) {
-        showLoading(true);
+        startLoading();
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
 
@@ -158,24 +153,31 @@ public class HomeFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     List<Product> searchResults = response.body().getProducts();
                     handler.post(() -> {
-                        showLoading(false);
+                        stopLoading();
                         updateProductList(searchResults);
-                        // Tampilkan pesan jika hasil kosong
                         if (searchResults.isEmpty()) {
                             tvNoData.setVisibility(View.VISIBLE);
                         }
                     });
                 } else {
-                    handler.post(() -> handleFetchError());
+                    handler.post(() -> {
+                        stopLoading();
+                        handleFetchError();
+                    });
                 }
             } catch (Exception e) {
-                handler.post(() -> handleFetchError());
+                handler.post(() -> {
+                    stopLoading();
+                    handleFetchError();
+                });
             }
         });
     }
 
     private void fetchProducts() {
-        showLoading(true);
+        if (productList.isEmpty()) {
+            startLoading();
+        }
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
 
@@ -187,9 +189,9 @@ public class HomeFragment extends Fragment {
                 Response<ProductResponse> response = call.execute();
                 if (response.isSuccessful() && response.body() != null) {
                     List<Product> fetchedProducts = response.body().getProducts();
-                    if (isAdded()) { // Pastikan Fragment masih terpasang
+                    if (isAdded()) {
                         handler.post(() -> {
-                            showLoading(false);
+                            stopLoading();
                             updateProductList(fetchedProducts);
                             CacheManager.saveProducts(requireContext(), fetchedProducts);
                             btnRefresh.setVisibility(View.GONE);
@@ -197,13 +199,13 @@ public class HomeFragment extends Fragment {
                     }
                 } else {
                     if (isAdded()) handler.post(() -> {
-                        showLoading(false);
+                        stopLoading();
                         handleFetchError();
                     });
                 }
             } catch (Exception e) {
                 if (isAdded()) handler.post(() -> {
-                    showLoading(false);
+                    stopLoading();
                     handleFetchError();
                 });
             }
@@ -219,6 +221,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void handleFetchError() {
+        stopLoading();
         if (productList.isEmpty()) {
             Toast.makeText(requireContext(), "Gagal memuat data. Periksa koneksi internet Anda.", Toast.LENGTH_LONG).show();
             btnRefresh.setVisibility(View.VISIBLE);

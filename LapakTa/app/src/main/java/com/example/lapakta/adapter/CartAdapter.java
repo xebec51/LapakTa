@@ -13,6 +13,8 @@ import com.example.lapakta.data.model.CartItem;
 import com.example.lapakta.data.model.Product;
 import com.squareup.picasso.Picasso;
 import java.util.List;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder> {
 
@@ -48,9 +50,10 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
         // Bind data produk dan kuantitas ke view
         holder.tvTitle.setText(product.getTitle());
-        holder.tvPrice.setText("Rp " + product.getPrice());
+        NumberFormat format = NumberFormat.getCurrencyInstance(Locale.US);
+        holder.tvPrice.setText(format.format(product.getPrice()));
+        holder.tvSubtotal.setText("Subtotal: " + format.format(subtotal));
         holder.tvQuantity.setText(String.valueOf(cartItem.getQuantity()));
-        holder.tvSubtotal.setText("Subtotal: Rp " + String.format("%.2f", subtotal));
         Picasso.get().load(product.getThumbnail()).into(holder.ivThumbnail);
 
         // Set listener untuk setiap tombol

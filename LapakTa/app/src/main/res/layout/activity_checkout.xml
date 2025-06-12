@@ -139,7 +139,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
                 android:text="Buat Pesanan"
-                android:backgroundTint="@color/lapakta_orange"
+                android:backgroundTint="@color/lapakta_blue"
                 android:textColor="@color/white"/>
 
         </LinearLayout>
