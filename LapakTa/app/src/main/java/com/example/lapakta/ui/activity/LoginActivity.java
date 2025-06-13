@@ -24,7 +24,8 @@ public class LoginActivity extends AppCompatActivity {
         TextView tvGoToRegister = findViewById(R.id.tvGoToRegister);
 
         btnLogin.setOnClickListener(v -> {
-            String username = etUsername.getText().toString().trim();
+            // Convert username to lowercase
+            String username = etUsername.getText().toString().trim().toLowerCase();
             String password = etPassword.getText().toString().trim();
 
             if (username.isEmpty() || password.isEmpty()) {
@@ -32,13 +33,13 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            // Nonaktifkan tombol dan ubah teks untuk memberi feedback
+            // Check credentials with lowercase username
             btnLogin.setEnabled(false);
             btnLogin.setText("Mengecek...");
 
-            // Handler untuk memberi jeda singkat agar perubahan UI terlihat
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 if (SessionManager.checkUserCredentials(this, username, password)) {
+                    // Save session with lowercase username
                     SessionManager.saveLoginSession(this, username);
                     Toast.makeText(this, "Login berhasil!", Toast.LENGTH_SHORT).show();
 
@@ -46,16 +47,14 @@ public class LoginActivity extends AppCompatActivity {
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
 
-                    // Tambahkan transisi saat pindah ke MainActivity
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                     finish();
                 } else {
                     Toast.makeText(this, "Username atau password salah", Toast.LENGTH_SHORT).show();
-                    // Aktifkan kembali tombol jika login gagal
                     btnLogin.setEnabled(true);
                     btnLogin.setText("Login");
                 }
-            }, 500); // Jeda 0.5 detik
+            }, 500);
         });
 
         // Listener untuk teks "Daftar di sini"

@@ -52,7 +52,10 @@ public class RegisterActivity extends AppCompatActivity {
             String dob = etDateOfBirth.getText().toString().trim();
             String email = etEmail.getText().toString().trim();
             String phone = etPhoneNumber.getText().toString().trim();
-            String username = etUsername.getText().toString().trim();
+            
+            // Convert username to lowercase
+            String username = etUsername.getText().toString().trim().toLowerCase();
+            
             String password = etPassword.getText().toString().trim();
 
             if (fullName.isEmpty() || dob.isEmpty() || email.isEmpty() || phone.isEmpty() || username.isEmpty() || password.isEmpty()) {
@@ -75,6 +78,7 @@ public class RegisterActivity extends AppCompatActivity {
                 return;
             }
 
+            // Save the lowercase username
             SessionManager.saveUser(this, username, password, fullName, email, phone, dob);
             Toast.makeText(this, "Registrasi berhasil! Silakan login.", Toast.LENGTH_LONG).show();
             finish();

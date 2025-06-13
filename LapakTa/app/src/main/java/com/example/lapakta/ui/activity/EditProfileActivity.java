@@ -84,7 +84,10 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private void saveChanges() {
         String fullName = etFullName.getText().toString().trim();
-        String newUsername = etUsername.getText().toString().trim();
+        
+        // Convert username to lowercase
+        String newUsername = etUsername.getText().toString().trim().toLowerCase();
+        
         String dob = etDateOfBirth.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
         String phone = etPhoneNumber.getText().toString().trim();
@@ -94,13 +97,13 @@ public class EditProfileActivity extends AppCompatActivity {
             return;
         }
 
-        // Validasi jika username diubah dan sudah ada yang pakai
+        // Validate with lowercase username
         if (!newUsername.equals(originalUsername) && SessionManager.isUserExists(this, newUsername)) {
             etUsername.setError("Username ini sudah digunakan");
             return;
         }
 
-        // Simpan perubahan
+        // Save changes with lowercase username
         SessionManager.updateUserProfileAndUsername(this, newUsername, fullName, email, phone, dob);
         Toast.makeText(this, "Profil berhasil diperbarui", Toast.LENGTH_SHORT).show();
         finish();
