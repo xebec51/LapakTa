@@ -48,4 +48,5 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.navigation.fragment)
     implementation(libs.shimmer)
+    implementation(libs.android.image.cropper)
 }

@@ -14,11 +14,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.canhub.cropper.CropImage;
+import com.canhub.cropper.CropImageContract;
+import com.canhub.cropper.CropImageContractOptions;
+import com.canhub.cropper.CropImageOptions;
 import com.example.lapakta.R;
 import com.example.lapakta.data.local.CartManager;
 import com.example.lapakta.data.local.SessionManager;
@@ -42,19 +45,39 @@ public class AccountFragment extends Fragment {
     private ShapeableImageView ivProfile;
     private ImageButton btnEditPhoto;
 
-    private final ActivityResultLauncher<String> imagePickerLauncher =
-            registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
-                if (uri != null) {
-                    // Simpan gambar ke penyimpanan internal
-                    String savedImagePath = saveImageToInternalStorage(uri);
-                    if (savedImagePath != null) {
-                        // Simpan path ke SessionManager
-                        SessionManager.saveProfilePhotoPath(requireContext(), savedImagePath);
-                        // Muat gambar dari file yang sudah disimpan
-                        Picasso.get().load(new File(savedImagePath)).into(ivProfile);
-                        Toast.makeText(requireContext(), "Foto profil berhasil diperbarui", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(requireContext(), "Gagal menyimpan gambar", Toast.LENGTH_SHORT).show();
+    // Launcher baru untuk image cropper
+    private final ActivityResultLauncher<CropImageContractOptions> imageCropLauncher =
+            registerForActivityResult(new CropImageContract(), result -> {
+                if (result.isSuccessful()) {
+                    Uri croppedImageUri = result.getUriContent();
+                    if (croppedImageUri != null) {
+                        // Simpan gambar yang sudah di-crop ke penyimpanan internal
+                        String savedImagePath = saveImageToInternalStorage(croppedImageUri);
+                        if (savedImagePath != null) {
+                            // Simpan path ke SessionManager
+                            SessionManager.saveProfilePhotoPath(requireContext(), savedImagePath);
+
+                            // --- PERBAIKAN BUG CACHE ---
+                            // Hapus cache gambar lama dari Picasso sebelum me-load yang baru
+                            File imageFile = new File(savedImagePath);
+                            Picasso.get().invalidate(imageFile);
+
+                            // Muat gambar dari file yang sudah disimpan
+                            Picasso.get()
+                                    .load(imageFile)
+                                    .placeholder(R.drawable.ic_account)
+                                    .into(ivProfile);
+
+                            Toast.makeText(requireContext(), "Foto profil berhasil diperbarui", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(requireContext(), "Gagal menyimpan gambar", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                } else {
+                    // Handle error jika ada
+                    Exception error = result.getError();
+                    if (error != null) {
+                        Toast.makeText(requireContext(), "Gagal memotong gambar: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -79,7 +102,8 @@ public class AccountFragment extends Fragment {
         SwitchMaterial switchTheme = view.findViewById(R.id.switchTheme);
         Button btnLogout = view.findViewById(R.id.btnLogout);
 
-        btnEditPhoto.setOnClickListener(v -> imagePickerLauncher.launch("image/*"));
+        // Listener untuk tombol edit foto, sekarang memanggil cropper
+        btnEditPhoto.setOnClickListener(v -> startImageCropper());
 
         tvEditProfile.setOnClickListener(v -> startActivity(new Intent(requireActivity(), EditProfileActivity.class)));
         tvChangePassword.setOnClickListener(v -> startActivity(new Intent(requireActivity(), ChangePasswordActivity.class)));
@@ -107,6 +131,28 @@ public class AccountFragment extends Fragment {
                     .setNegativeButton("Tidak", null)
                     .show();
         });
+    }
+
+    // Fungsi untuk memulai image cropper
+    // Ganti fungsi lama startImageCropper() dengan yang ini
+    // Ganti KESELURUHAN fungsi startImageCropper() dengan yang ini
+    private void startImageCropper() {
+        // 1. Buat objek CropImageOptions
+        CropImageOptions cropOptions = new CropImageOptions();
+
+        // 2. Atur semua konfigurasi dengan mengakses properti publik SECARA LANGSUNG
+        cropOptions.aspectRatioX = 1;
+        cropOptions.aspectRatioY = 1;
+        cropOptions.fixAspectRatio = true;
+        cropOptions.cropShape = com.canhub.cropper.CropImageView.CropShape.OVAL;
+        cropOptions.outputCompressQuality = 70;
+        cropOptions.guidelines = com.canhub.cropper.CropImageView.Guidelines.ON_TOUCH;
+
+        // 3. Masukkan cropOptions yang sudah dikonfigurasi ke dalam CropImageContractOptions
+        CropImageContractOptions contractOptions = new CropImageContractOptions(null, cropOptions);
+
+        // 4. Jalankan launcher dengan contractOptions yang sudah benar
+        imageCropLauncher.launch(contractOptions);
     }
 
     @Override
@@ -142,7 +188,7 @@ public class AccountFragment extends Fragment {
             InputStream inputStream = getContext().getContentResolver().openInputStream(uri);
             if (inputStream == null) return null;
 
-            // Buat nama file unik berdasarkan username
+            // Buat nama file unik berdasarkan username, selalu menimpa yang lama
             String username = SessionManager.getLoggedInUsername(getContext());
             File file = new File(getContext().getFilesDir(), "profile_" + username + ".jpg");
 

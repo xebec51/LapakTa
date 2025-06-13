@@ -19,7 +19,7 @@
             android:exported="false" />
         <activity
             android:name=".ui.activity.EditProfileActivity"
-            android:exported="false" /> <!-- 1. Jadikan SplashActivity sebagai LAUNCHER -->
+            android:exported="false" />
         <activity
             android:name=".ui.activity.SplashActivity"
             android:exported="true"
@@ -29,10 +29,13 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- 2. Hapus intent-filter LAUNCHER dari MainActivity -->
+        </activity>
+        <activity
+            android:name="com.canhub.cropper.CropImageActivity"
+            android:theme="@style/Base.Theme.AppCompat" />
         <activity
             android:name=".ui.activity.MainActivity"
-            android:exported="false" /> <!-- 3. Pastikan Activity lain sudah terdaftar dengan benar -->
+            android:exported="false" />
         <activity
             android:name=".ui.activity.LoginActivity"
             android:exported="false" />
